@@ -10,16 +10,6 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/assets/styles/style.scss":
-/*!**************************************!*\
-  !*** ./src/assets/styles/style.scss ***!
-  \**************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extract-plugin\n\n\n//# sourceURL=webpack://delivery_app_fe/./src/assets/styles/style.scss?");
-
-/***/ }),
-
 /***/ "./src/app/areas/shopping-list/shopping-list.js":
 /*!******************************************************!*\
   !*** ./src/app/areas/shopping-list/shopping-list.js ***!
@@ -178,7 +168,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["src_app_core_services_productsApiService_js-src_app_shared_productService_js"], () => (__webpack_require__("./src/app/areas/shopping-list/shopping-list.js")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["src_assets_styles_style_scss-src_app_core_services_productsApiService_js-src_app_shared_produ-81b3b8"], () => (__webpack_require__("./src/app/areas/shopping-list/shopping-list.js")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()
