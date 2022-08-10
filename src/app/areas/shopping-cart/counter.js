@@ -1,48 +1,56 @@
-import { productService } from '../../shared/productService.js';
+import { productService } from '../../core/services/productService.js';
 
-class Counter {
-  minusEl() {
-    const selectedDishes = document.querySelectorAll('.delivery-content__dish');
-    selectedDishes.forEach((item) => {
-      item
+class ProductCounter {
+  decreaseProduct() {
+    const selectedproducts = document.querySelectorAll(
+      '.delivery-content__product'
+    );
+    selectedproducts.forEach((product) => {
+      product
         .querySelector('[data-action="minus"]')
         .addEventListener('click', () => {
-          const counter = item.querySelector('[data-counter]');
-          if (+counter.innerText > 1) {
-            counter.innerText = --counter.innerText;
-            const idDish = item
-              .querySelector('[data-id]')
-              .getAttribute('data-id');
-            this.calcTotalPrice();
-            productService.removeProducts(idDish);
-          }
+          const counter = product.querySelector('[data-counter]');
+          if (+counter.innerText === 1) return;
+
+          counter.innerText = --counter.innerText;
+          const idproduct = product
+            .querySelector('[data-id]')
+            .getAttribute('data-id');
+          this.calcTotalPrice();
+          productService.decreaseByOneSelectedProductId(idproduct);
         });
     });
   }
 
-  plusEl() {
-    const selectedDishes = document.querySelectorAll('.delivery-content__dish');
-    selectedDishes.forEach((item) => {
-      item
+  increaseProduct() {
+    const selectedproducts = document.querySelectorAll(
+      '.delivery-content__product'
+    );
+    selectedproducts.forEach((product) => {
+      product
         .querySelector('[data-action="plus"]')
         .addEventListener('click', () => {
-          const counter = item.querySelector('[data-counter]');
-          counter.innerText = ++counter.innerText;
-          const id = item.querySelector('[data-id]').getAttribute('data-id');
+          const productQuantity = product.querySelector('[data-counter]');
+          productQuantity.innerText = ++counter.innerText;
+          const id = product.querySelector('[data-id]').getAttribute('data-id');
           this.calcTotalPrice();
-          productService.putProducts(id);
+          productService.setSelectedProductIds(id);
         });
     });
   }
 
   calcTotalPrice() {
-    const selectedDishes = document.querySelectorAll('.delivery-content__dish');
+    const selectedproducts = document.querySelectorAll(
+      '.delivery-content__product'
+    );
     let totalPrice = 0;
-    selectedDishes.forEach((dish) => {
-      const dishCost = dish.querySelector('.delivery-content__cost').innerHTML;
-      const dishPrice = dish.querySelector('[data-counter]').innerHTML;
-      const currentPrice = +dishCost * +dishPrice;
-      totalPrice += currentPrice;
+    selectedproducts.forEach((product) => {
+      const productPrice = product.querySelector(
+        '.delivery-content__cost'
+      ).innerHTML;
+      const productCount = product.querySelector('[data-counter]').innerHTML;
+      const productCost = +productPrice * +productCount;
+      totalPrice += productCost;
     });
     document.getElementById(
       'totalPrice'
@@ -50,4 +58,4 @@ class Counter {
   }
 }
 
-export const counter = new Counter();
+export const counter = new ProductCounter();

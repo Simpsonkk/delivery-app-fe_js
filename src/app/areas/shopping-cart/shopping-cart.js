@@ -1,39 +1,41 @@
 import '/src/assets/styles/style.scss';
 import { counter } from './counter.js';
-import { productService } from '../../shared/productService.js';
-import { productsApiService } from './../../core/services/productsApiService.js';
+import { productService } from '../../core/services/productService.js';
+import { deliveryApiService } from '../../core/services/deliveryApiService.js';
 
-class ShoppingCartPage {
+class ShoppingCart {
   initAddEventListeners() {
     document
       .querySelectorAll('.delivery-content__remove-button')
       .forEach((removeProductButton) => {
         removeProductButton.addEventListener(
           'click',
-          shoppingCartPage.removeDish
+          shoppingCart.removeproduct
         );
       });
 
     document
       .getElementById('submit')
-      .addEventListener('click', shoppingCartPage.setOrder);
+      .addEventListener('click', shoppingCart.setOrder);
   }
 
-  render(shopId) {
-    const products = productService.getProducts();
+  render(products) {
+    const selectedProducts = productService.getSelectedProductIds();
     let selectedProductsCount = {};
     [...new Set(products)].forEach((product) => {
       selectedProductsCount[product] = products.filter(
         (x) => x === product
       ).length;
     });
+
     let htmlCatalog = '';
-    let sumCatalog = 0;
-    shopId.forEach(({ productId, name, price, img }) => {
-      const quantity = selectedProductsCount[productId];
+    let totalPrice = 0;
+    selectedProducts.forEach(({ productId, name, price, img }) => {
       if (products.indexOf(JSON.stringify(productId)) !== -1) {
+        const quantity = selectedProductsCount[productId];
+
         htmlCatalog += `
-        <div class="delivery-content__dish row col-4 justify-content-center">
+        <div class="delivery-content__product row col-4 justify-content-center">
           <img class="delivery-content__img col-auto" src=${img}>
           <div class="w-100"></div>
           <p class="delivery-content__name col-auto">${name}</p>
@@ -49,30 +51,32 @@ class ShoppingCartPage {
           </div>
         </div>
         `;
-        sumCatalog += price * quantity;
+        totalPrice += price * quantity;
       }
     });
-    document.getElementById('selectedDishes').innerHTML = htmlCatalog;
+    document.getElementById('selectedproducts').innerHTML = htmlCatalog;
     document.getElementById(
       'totalPrice'
-    ).innerHTML = `Total price: ${sumCatalog} $`;
+    ).innerHTML = `Total price: ${totalPrice} $`;
     this.initAddEventListeners();
-    counter.plusEl();
-    counter.minusEl();
+    counter.increaseProduct();
+    counter.decreaseProduct();
   }
 
-  async removeDish(event) {
-    productService.removeAllProducts(event.target.getAttribute('data-id'));
-    const shopName = localStorage.getItem('shopId');
-    const removesProducts = await productsApiService.getProducts(shopName);
-    shoppingCartPage.render(removesProducts);
+  async removeproduct(event) {
+    productService.removeSelectedProductId(event.target.getAttribute('data-id'));
+    const shopName = localStorage.getItem('products');
+    const removesProducts = await deliveryApiService.getProducts(shopName);
+    shoppingCart.render(removesProducts);
   }
 
   sumTotal() {
-    const selectedDishes = document.querySelectorAll('.delivery-content__dish');
+    const selectedproducts = document.querySelectorAll(
+      '.delivery-content__product'
+    );
 
     var totalPrice = 0;
-    selectedDishes.forEach((item) => {
+    selectedproducts.forEach((item) => {
       const quantityEl = item.querySelector(
         '.delivery-content__current'
       ).textContent;
@@ -85,10 +89,11 @@ class ShoppingCartPage {
       'totalPrice'
     ).innerHTML = `Total price: ${totalPrice} $`;
   }
+
   async setOrder() {
     let productsCount = [];
-    const shopName = localStorage.getItem('shopId');
-    const list = await productsApiService.getProducts(shopName);
+    const shopName = localStorage.getItem('products');
+    const list = await deliveryApiService.getProducts(shopName);
     const totalPrice = document
       .getElementById('totalPrice')
       .innerHTML.split('Total price: ')
@@ -102,17 +107,17 @@ class ShoppingCartPage {
     });
     list.length = productsCount.length;
 
-    const dishesNameAndQuantity = list.reduce((acc, el, i) => {
+    const productsNameAndQuantity = list.reduce((acc, el, i) => {
       acc.push(el.name, productsCount[i]);
       return acc;
     }, []);
-    const shops = await productsApiService.getShopsNames();
+    const shops = await deliveryApiService.getShopsNames();
     const selectedShopName = shops
-      .filter((el) => JSON.parse(shopName).includes(el.shopId))
+      .filter((el) => JSON.parse(shopName).includes(el.products))
       .map((el) => el.shop);
     const order = {
       shop: selectedShopName.join(''),
-      dishesNameAndQuantity: dishesNameAndQuantity,
+      productsNameAndQuantity: productsNameAndQuantity,
       totalPrice: totalPrice,
       userName: userName,
       userEmail: userEmail,
@@ -120,25 +125,25 @@ class ShoppingCartPage {
       userAddress: userAddress,
     };
     localStorage.clear();
-    document.getElementById('selectedDishes').innerHTML = '';
+    document.getElementById('selectedproducts').innerHTML = '';
     document.getElementById('totalPrice').innerHTML = 'Total price: 0 $';
     document
       .querySelectorAll('.shopping-cart__input')
       .forEach((userDatainput) => {
         userDatainput.value = '';
       });
-    await productsApiService.sendOrder(order);
+    await deliveryApiService.sendOrder(order);
     alert('Your order has been sent!');
   }
 
   async productsInit() {
-    const selectedShop = localStorage.getItem('shopId');
-    if (selectedShop) {
-      const products = await productsApiService.getProducts(selectedShop);
-      this.render(products);
-    }
+    const selectedShop = localStorage.getItem('products');
+    if (!selectedShop) return;
+
+    const products = await deliveryApiService.getProducts(selectedShop);
+    this.render(products);
   }
 }
 
-export const shoppingCartPage = new ShoppingCartPage();
-shoppingCartPage.productsInit();
+export const shoppingCart = new ShoppingCart();
+shoppingCart.productsInit();

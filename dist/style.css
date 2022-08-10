@@ -21558,7 +21558,7 @@ a {
   height: 80px;
   border-radius: 20%;
 }
-.delivery-content__dish {
+.delivery-content__product {
   border: 3px solid green;
   border-radius: 20px;
   padding: 20px;
@@ -21626,7 +21626,7 @@ a {
 .shopping-cart__input-container {
   height: 50px;
 }
-.shopping-cart__selected-dishes {
+.shopping-cart__selected-products {
   border: 3px solid rgba(0, 128, 0, 0.304);
   height: 500px;
   overflow: auto;

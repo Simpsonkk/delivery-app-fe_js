@@ -1,28 +1,29 @@
 import '/src/assets/styles/style.scss';
-import { productService } from '../../shared/productService.js';
-import { productsApiService } from './../../core/services/productsApiService.js';
+import { productService } from '../../core/services/productService.js';
+import { deliveryApiService } from '../../core/services/deliveryApiService.js';
 
-class Products {
+class ShoppingList {
   handleSetLocationStorage(event) {
-    productService.putProducts(event.target.getAttribute('data-id'));
+    productService.setSelectedProductIds(event.target.getAttribute('data-id'));
     event.target.innerHTML = 'Added';
     event.target.setAttribute('disabled', 'disabled');
   }
 
   render(products) {
-    const productsStore = productService.getProducts();
+    const selectedProducts = productService.getSelectedProductIds();
     let htmlCatalog = '';
     let activeTextButton = '';
     products.forEach(({ productId, name, price, img }) => {
-      if (productsStore.indexOf(productId) === -1) {
+      let disabledButton = '';
+      if (selectedProducts.indexOf(productId) === -1) {
         activeTextButton = 'Add to Cart';
       } else {
         activeTextButton = 'Added';
-        var disabledButton = 'disabled="disabled"';
+        disabledButton = 'disabled="disabled"';
       }
 
       htmlCatalog += `
-      <div class="delivery-content__dish row col-4 justify-content-center">
+      <div class="delivery-content__product row col-4 justify-content-center">
         <img class="delivery-content__img col-auto" src=${img}>
         <div class="w-100"></div>
         <p class="delivery-content__name col-auto">${name}</p>
@@ -49,34 +50,42 @@ class Products {
       .forEach((buyProductBtn) => {
         buyProductBtn.addEventListener(
           'click',
-          productsPage.handleSetLocationStorage
+          shoppingList.handleSetLocationStorage
         );
       });
   }
 
-  async getShops() {
-    const shops = await productsApiService.getShopsNames();
-    let shopsBtns = '';
+  async renderShopBtns() {
+    const shops = await deliveryApiService.getShop();
+    let shopBtnsToRender = '';
     shops.forEach(({ shop, shopId }) => {
-      shopsBtns += `
+      shopBtnsToRender += `
          <div class="w-100"></div>
-          <button id="shopButton-${shopId}" type="button" class="delivery-content__shop-button btn btn-outline-warning col mb-2" data-id="${shopId}">${shop}</button>
+          <button id="shopButton-${shopId}" 
+                  type="button" 
+                  class="delivery-content__shop-button btn btn-outline-warning col mb-2" 
+                  data-id="${shopId}"
+          >${shop}</button>
           `;
     });
-    document.querySelector('.delivery-content__shops').innerHTML = shopsBtns;
-    const elements = document.querySelectorAll('button[id^="shopButton-"]');
-    elements.forEach((element) => {
-      const id = element.getAttribute('data-id');
-      element.addEventListener('click', async () => {
-        let products = await productsApiService.getProducts(id);
+    document.querySelector('.delivery-content__shops').innerHTML =
+      shopBtnsToRender;
+    this.renderShopProducts();
+  }
+
+  renderShopProducts() {
+    const shopBtns = document.querySelectorAll('button[id^="shopButton-"]');
+    shopBtns.forEach((shopBtn) => {
+      const shopId = shopBtn.getAttribute('data-id');
+      shopBtn.addEventListener('click', async () => {
+        let products = await deliveryApiService.getProducts(shopId);
         this.render(products);
         localStorage.clear();
-        localStorage.setItem('shopId', JSON.stringify(id));
+        localStorage.setItem('shopId', JSON.stringify(shopId));
       });
     });
   }
 }
 
-export const productsPage = new Products();
-productsPage.getShops();
-
+const shoppingList = new ShoppingList();
+shoppingList.renderShopBtns();

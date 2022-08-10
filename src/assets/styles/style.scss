@@ -46,7 +46,7 @@ a {
     border-radius: 20%;
   }
 
-  &__dish {
+  &__product {
     border: 3px solid green;
     border-radius: 20px;
     padding: 20px;
@@ -126,7 +126,7 @@ a {
     height: 50px;
   }
 
-  &__selected-dishes {
+  &__selected-products {
     border: 3px solid rgba(0, 128, 0, 0.304);
     height: 500px;
     overflow: auto;
